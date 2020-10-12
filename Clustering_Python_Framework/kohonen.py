@@ -63,6 +63,7 @@ class Kohonen:
                 vec = self.clusters[i][j].prototype
                 dist = self.distance(vec, data)
                 if dist < min_dist:
+                    min_dist = dist
                     x = i
                     y = j
         return x, y
@@ -80,19 +81,19 @@ class Kohonen:
         # for each client find the cluster of which it is a member
         print("--- test ---")
         hits = 0
-        prefetched = 0
-        requests = 0
+        prefetched_requests = 0
+        total_requests = 0
         for data in self.testdata:
             x, y = self.find_bmu(data)
             for i in range(self.dim):
                 if self.clusters[x][y].prototype[i] > self.prefetch_threshold:
-                    prefetched += 1
-                if data[i] == 1:
-                    requests += 1
+                    prefetched_requests += 1
+                if self.clusters[x][y].prototype[i] > self.prefetch_threshold or data[i] == 1:
+                    total_requests += 1
                 if self.clusters[x][y].prototype[i] > self.prefetch_threshold and data[i] == 1:
                     hits += 1
-        self.hitrate = prefetched / requests if requests != 0 else 0
-        self.accuracy = hits / prefetched if prefetched != 0 else 0
+        self.hitrate = prefetched_requests / total_requests if total_requests != 0 else 0
+        self.accuracy = hits / prefetched_requests if prefetched_requests != 0 else 0
         # get the actual testData (the vector) of this client
         # iterate along all dimensions
         # and count prefetched htmls
